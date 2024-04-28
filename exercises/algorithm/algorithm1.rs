@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,13 +69,55 @@ impl<T> LinkedList<T> {
             },
         }
     }
+}
+
+impl<T: Ord> LinkedList<T> {
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        if list_a.length == 0 {
+            return list_b;
+        }
+        if list_b.length == 0 {
+            return list_a;
+        }
+
+        unsafe {
+            let mut a = list_a.start.unwrap().as_mut();
+            let mut b = list_b.start.unwrap().as_mut();
+            let start = if a.val < b.val {list_a.start} else {list_b.start};
+            let mut flag = true;
+            while true {
+                if b.val < a.val { // swap branch so that a <= b
+                    std::mem::swap(&mut a, &mut b);
+                    flag = !flag;
+                }
+                while a.val <= b.val {
+                    if let Some(mut na) = a.next {
+                        if na.as_mut().val <= b.val {
+                            a = na.as_mut();
+                        }
+                        else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                if a.next.is_none() {
+                    a.next = NonNull::new(b);
+                    break; // only breaks if one branch is at end
+                } else {
+                    let t = a.next.unwrap().as_mut();
+                    a.next = NonNull::new(b);
+                    a = t;
+                }
+            }
+            let end = if flag {list_b.end} else {list_a.end};
+            Self {
+                length: list_a.length + list_b.length,
+                start: start,
+                end: end,
+            }
         }
 	}
 }

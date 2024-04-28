@@ -3,10 +3,33 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
+
+use std::mem::swap;
+
+fn sort<T: Ord + std::fmt::Display>(array: &mut [T]){
 	//TODO
+    match array {
+        [] | [_] => {},
+        [a, b] => {
+            if b < a {
+                swap(a, b);
+            }
+        },
+        slice => { // more than 2 elements
+            let pivot = slice.len() - 1;
+            let mut t = 0;
+            for i in 0..slice.len() {
+                if slice[pivot] > slice[i] {
+                    slice.swap(i, t);
+                    t = t + 1;
+                }
+            }
+            slice.swap(pivot, t);
+            sort(&mut slice[..pivot]);
+            sort(&mut slice[(pivot + 1)..]);
+        }
+    }
 }
 #[cfg(test)]
 mod tests {

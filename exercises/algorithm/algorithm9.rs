@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -23,7 +23,7 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![],
             comparator,
         }
     }
@@ -37,7 +37,16 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        let mut idx = self.count;
+        while idx > 0 {
+            let parent = idx / 2;
+            if !(self.comparator)(&self.items[parent], &self.items[idx]) {
+                self.items.swap(parent, idx);
+            }
+            idx = parent;
+        }
+        self.count = self.count + 1;
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,7 +66,6 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
 		0
     }
 }
@@ -84,8 +92,30 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count == 0 {
+            None
+        } else {
+            self.items.swap(0, self.count - 1);
+            let t = self.items.drain((self.count-1)..).last();
+            self.count = self.count - 1;
+            let mut idx = 0;
+            while true {
+                let mut min = idx;
+                if idx * 2 < self.count && (self.comparator)(&self.items[idx * 2], &self.items[min]) {
+                    min = idx * 2;
+                }
+                if idx * 2 + 1 < self.count && (self.comparator)(&self.items[idx * 2 + 1], &self.items[min]) {
+                    min = idx * 2 + 1;
+                }
+                if min != idx {
+                    self.items.swap(idx, min);
+                    idx = min;
+                } else {
+                    break;
+                }
+            }
+            t
+        }
     }
 }
 
